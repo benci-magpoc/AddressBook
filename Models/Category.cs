@@ -12,7 +12,8 @@ namespace AddressBook.Models
         public string? Name { get; set; }
 
         //TODO: Add virtual
-        public virtual AppUser User { get; set; }
+        public virtual AppUser? AppUser { get; set; }
+        public virtual ICollection<Contact> Contacts { get; set; } = new HashSet<Contact>();
 
     }
 }
