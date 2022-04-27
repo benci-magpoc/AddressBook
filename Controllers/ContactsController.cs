@@ -55,6 +55,7 @@ namespace AddressBook.Controllers
         }
 
         // GET: Contacts/Create
+        [Authorize]
         public IActionResult Create()
         {
             ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
@@ -94,6 +95,7 @@ namespace AddressBook.Controllers
         }
 
         // GET: Contacts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -161,6 +163,7 @@ namespace AddressBook.Controllers
         }
 
         // GET: Contacts/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
