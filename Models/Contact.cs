@@ -27,7 +27,7 @@ namespace AddressBook.Models
 
         [Display(Name = "Birthday")] 
         [DataType(DataType.Date)]
-        public DateTime BirthDate{ get; set; }
+        public DateTime? BirthDate{ get; set; }
 
         [Required]
         public string? Address1 { get; set; }
