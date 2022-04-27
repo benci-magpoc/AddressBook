@@ -7,6 +7,7 @@ namespace AddressBook.Models
     public class Contact
     {
         public int Id { get; set; }
+        [Required]
         public string? AppUserId { get; set; }
 
         [Required]
