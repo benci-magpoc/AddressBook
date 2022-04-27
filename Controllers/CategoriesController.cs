@@ -29,7 +29,9 @@ namespace AddressBook.Controllers
         public async Task<IActionResult> Index()
         {
             string userId = _userManager.GetUserId(User);
-            List<Category> categories = await _context.Categories.Where(c => c.AppUserId == userId).ToListAsync();
+            List<Category> categories = await _context.Categories
+                                                    .Where(c => c.AppUserId == userId)
+                                                    .ToListAsync();
 
             return View(categories);
         }
@@ -111,8 +113,6 @@ namespace AddressBook.Controllers
             {
                 return NotFound();
             }
-
-
 
             if (ModelState.IsValid)
             {
