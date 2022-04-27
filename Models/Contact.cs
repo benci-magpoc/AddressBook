@@ -56,7 +56,7 @@ namespace AddressBook.Models
         public DateTime Created { get; set; }
         
         //Image properties
-        public byte[] ImageData { get; set; }
+        public byte[]? ImageData { get; set; }
         public string? ImageType { get; set; }
 
         [NotMapped]
