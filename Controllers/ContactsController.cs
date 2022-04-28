@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AddressBook.Data;
+using AddressBook.Data.Migrations;
 using AddressBook.Enums;
 using AddressBook.Models;
+using AddressBook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,11 +20,18 @@ namespace AddressBook.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IAddressBookService _addressBookService;
+        private readonly IImageService _imageService;
 
-        public ContactsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public ContactsController(ApplicationDbContext context, 
+                                    UserManager<AppUser> userManager,
+                                    IAddressBookService addressBookService,
+                                    IImageService imageService)
         {
             _context = context;
             _userManager = userManager;
+            _addressBookService = addressBookService;
+            _imageService = imageService;
         }
 
         // GET: Contacts
@@ -31,6 +40,7 @@ namespace AddressBook.Controllers
         {
             AppUser appUser = await _userManager.GetUserAsync(User);
             List<Contact> contacts = await _context.Contacts.Where(c => c.AppUserId == appUser.Id).ToListAsync();
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUser.Id), "Id", "Name");
 
             return View(contacts);
         }
@@ -45,6 +55,7 @@ namespace AddressBook.Controllers
 
             Contact contact = await _context.Contacts
                 .Include(c => c.AppUser)
+                .Include(c =>c.Categories)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (contact == null)
             {
@@ -56,18 +67,21 @@ namespace AddressBook.Controllers
 
         // GET: Contacts/Create
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            string appUserId = _userManager.GetUserId(User);
+
             ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId),"Id","Name");
             return View();
         }
 
         // POST: Contacts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost]  
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,BirthDate,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,ImageType")] Contact contact)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,BirthDate,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,ImageFile")] Contact contact, List<int> categoryList)
         {
             ModelState.Remove("AppUserId");
 
@@ -83,14 +97,26 @@ namespace AddressBook.Controllers
 
                 if (contact.ImageFile != null)
                 {
-                    //TODO: Image Service
+                    contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                    contact.ImageType = contact.ImageFile.ContentType;
                 }
 
                 _context.Add(contact);
                 await _context.SaveChangesAsync();
+                
+                //Add contact to categories
+                foreach (var categoryId in categoryList)
+                {
+                    await _addressBookService.AddContactToCategoryAsync(categoryId, contact.Id);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", contact.AppUserId);
+
+            string appUserId = _userManager.GetUserId(User);
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name");
+
             return View(contact);
         }
 
@@ -109,7 +135,11 @@ namespace AddressBook.Controllers
             {
                 return NotFound();
             }
+            string appUserId = _userManager.GetUserId(User);
+
             ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name",await _addressBookService.GetContactCategoryIdsAsync(contact.Id));
+
             return View(contact);
             
         }
@@ -119,7 +149,7 @@ namespace AddressBook.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AppUserId,FirstName,LastName,BirthDate,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,ImageData,ImageType")] Contact contact)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,AppUserId,FirstName,LastName,BirthDate,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,Created,ImageData,ImageType")] Contact contact, List<int> categoryList)
         {
             if (id != contact.Id)
             {
@@ -139,11 +169,24 @@ namespace AddressBook.Controllers
 
                     if (contact.ImageFile != null)
                     {
-                        //TODO: Image Service
+                        contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                        contact.ImageType = contact.ImageFile.ContentType;
                     }
 
                     _context.Update(contact);
                     await _context.SaveChangesAsync();
+
+                    List<Category> oldCategories = (await _addressBookService.GetContactCategoriesAsync(contact.Id)).ToList();
+                    foreach (Category category in oldCategories)
+                    {
+                        await _addressBookService.RemoveContactFromCategoryAsync(category.Id, contact.Id);  
+                    }
+
+                    //Add contact to categories
+                    foreach (var categoryId in categoryList)
+                    {
+                        await _addressBookService.AddContactToCategoryAsync(categoryId, contact.Id);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -158,7 +201,11 @@ namespace AddressBook.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            string appUserId = _userManager.GetUserId(User);
+
             ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name", await _addressBookService.GetContactCategoryIdsAsync(contact.Id));
+
             return View(contact);
         }
 
