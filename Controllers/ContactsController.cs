@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AddressBook.Data;
+using AddressBook.Data.Migrations;
 using AddressBook.Enums;
 using AddressBook.Models;
 using AddressBook.Services;
@@ -34,11 +35,25 @@ namespace AddressBook.Controllers
 
         // GET: Contacts
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            AppUser appUser = await _userManager.GetUserAsync(User);
-            List<Contact> contacts = await _context.Contacts.Where(c => c.AppUserId == appUser.Id).ToListAsync();
-            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUser.Id), "Id", "Name");
+            List<Contact> contacts = new List<Contact>();
+            string appUserId = _userManager.GetUserId(User);
+
+            AppUser appUser = _context.Users
+                .Include(c => c.Contacts)
+                .ThenInclude(c => c.Categories)
+                .FirstOrDefault(u => u.Id == appUserId);
+            if (id == 0)
+            {
+                contacts = appUser.Contacts.ToList();
+            }
+            else
+            {
+                contacts = appUser.Categories.FirstOrDefault(c => c.Id == id).Contacts.ToList();
+            }
+
+            ViewData["CategoryId"] = new SelectList(appUser.Categories, "Id", "Name", id);
 
             return View(contacts);
         }

@@ -1,5 +1,7 @@
 ﻿@model AddressBook.Models.Contact
 @using AddressBook.Services.Interfaces
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
 <!-- Inject image service class-->
 @inject IImageService ImageService
 
@@ -9,7 +11,7 @@
 
 <h1>Details</h1>
 
-<div>
+<div class="glass-cf-style darkGlass p-2">
     <h4>Contact</h4>
     <hr />
     <dl class="row">
@@ -106,6 +108,7 @@
     }
 
 </div>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
