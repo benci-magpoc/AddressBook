@@ -1,4 +1,7 @@
 ﻿@model AddressBook.Models.Contact
+@using AddressBook.Services.Interfaces
+<!-- Inject image service class-->
+@inject IImageService ImageService
 
 @{
     ViewData["Title"] = "Details";
@@ -80,7 +83,15 @@
             @Html.DisplayNameFor(model => model.ImageData)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ImageData)
+            @if (Model.ImageData != null)
+            {
+                Console.WriteLine("Image");
+                <img id="contactImage" src="@ImageService.ConvertByteArrayToFile(Model.ImageData, Model.ImageType)" class="img-fluid img-thumbnail mt-2" style="width:120px;height:120px">
+            }
+            else
+            {
+                <img id="contactImage" class="img-fluid img-thumbnail mt-2" style="width:120px;height:120px" src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png">
+            }
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ImageType)

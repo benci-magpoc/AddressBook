@@ -1,4 +1,7 @@
 ﻿@model IEnumerable<AddressBook.Models.Contact>
+@using AddressBook.Services.Interfaces
+<!-- Inject image service class-->
+@inject IImageService ImageService
 
 @{
     ViewData["Title"] = "Index";
@@ -48,13 +51,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.ImageData)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Categories)
-            </th>
-            <th></th>
+            
         </tr>
     </thead>
     <tbody>
@@ -94,18 +91,20 @@
             @Html.DisplayFor(modelItem => item.Created)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.ImageData)
+            @if (item.ImageData != null)
+            {
+                Console.WriteLine("Image");
+                <img id="contactImage" src="@ImageService.ConvertByteArrayToFile(item.ImageData, item.ImageType)" class="img-fluid img-thumbnail mt-2" style="width:120px;height:120px">
+            }
+            else
+            {
+                <img id="contactImage" class="img-fluid img-thumbnail mt-2" style="width:120px;height:120px" src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png">
+            }
         </td>
+        
         <td>
-            @Html.DisplayFor(modelItem => item.ImageType)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Categories)
-        </td>
-            
-        <td>
-            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+            <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
         </td>
     </tr>
