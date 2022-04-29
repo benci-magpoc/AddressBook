@@ -1,4 +1,5 @@
 using AddressBook.Data;
+using AddressBook.Helper;
 using AddressBook.Models;
 using AddressBook.Services;
 using AddressBook.Services.Interfaces;
@@ -8,15 +9,18 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = ConnectionHelper.GetConnectionString(builder.Configuration);
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-//Custome Services
+//Custom Services
 builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddControllersWithViews();
