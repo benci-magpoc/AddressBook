@@ -19,7 +19,7 @@ body {
 }
 
 .pageBG {
-    background: url("~/img/IronManWorkshop.png");
+    background: url("/img/IronManWorkshop.png");
     background-size: cover;
 }
 
