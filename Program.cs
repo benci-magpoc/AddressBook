@@ -23,9 +23,15 @@ builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireCo
 //Custom Services
 builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<SearchService>();
+
+builder.Services.AddMvc();
 
 var app = builder.Build();
+
+//Data Seeding
+var scope = app.Services.CreateScope();
+await DataHelper.ManageDataAsync(scope.ServiceProvider);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

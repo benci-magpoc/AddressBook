@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -32,7 +36,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="ms-5 mt-1">
+                                <form class="form-inline d-inline" asp-controller="Contacts" asp-action="SearchContacts" method="post">
+                                    <div class="input-group">
+                                        <input class="form-control mr-sm-2" type="search" name="searchString" placeholder="Search Term" />
+                                        <input type="submit" class="btn btn-outline-warning my-2 my-sm-0" value="Search" />
+                                    </div>
+                                </form>
+                            </li>
+                        }
                     </ul>
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>

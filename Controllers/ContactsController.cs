@@ -1,15 +1,11 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AddressBook.Data;
-using AddressBook.Data.Migrations;
 using AddressBook.Enums;
 using AddressBook.Models;
+using AddressBook.Services;
 using AddressBook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,16 +18,18 @@ namespace AddressBook.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IAddressBookService _addressBookService;
         private readonly IImageService _imageService;
-
+        private readonly SearchService _searchService;
         public ContactsController(ApplicationDbContext context, 
                                     UserManager<AppUser> userManager,
                                     IAddressBookService addressBookService,
-                                    IImageService imageService)
+                                    IImageService imageService,
+                                    SearchService searchService)
         {
             _context = context;
             _userManager = userManager;
             _addressBookService = addressBookService;
             _imageService = imageService;
+            _searchService = searchService;
         }
 
         // GET: Contacts
@@ -43,6 +41,17 @@ namespace AddressBook.Controllers
             ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUser.Id), "Id", "Name");
 
             return View(contacts);
+        }
+
+        // Search Contact
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SearchContacts(string searchString)
+        {
+            var userId = _userManager.GetUserId(User);
+            List<Contact> contacts = _searchService.SearchContacts(searchString, userId).ToList();
+
+            return View(nameof(Index), contacts);
         }
 
         // GET: Contacts/Details/5
