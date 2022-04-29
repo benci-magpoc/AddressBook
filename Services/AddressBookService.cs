@@ -97,7 +97,7 @@ namespace AddressBook.Services
         {
             try
             {
-                if (!await IsContactInCategory(categoryId, contactId))
+                if (await IsContactInCategory(categoryId, contactId))
                 {
                     Contact? contact = await _context.Contacts.FindAsync(contactId);
                     Category? category = await _context.Categories.FindAsync(categoryId);
