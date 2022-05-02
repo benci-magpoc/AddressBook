@@ -1,10 +1,11 @@
 ﻿using AddressBook.Data;
 using AddressBook.Models;
+using AddressBook.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AddressBook.Services
 {
-    public class SearchService
+    public class SearchService :ISearchService
     {
         private readonly ApplicationDbContext _context;
         public SearchService(ApplicationDbContext context)

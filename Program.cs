@@ -3,7 +3,6 @@ using AddressBook.Helper;
 using AddressBook.Models;
 using AddressBook.Services;
 using AddressBook.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +22,10 @@ builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireCo
 //Custom Services
 builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<SearchService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IABEmailSender, BasicEmailService>();
 
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddMvc();
 
 var app = builder.Build();

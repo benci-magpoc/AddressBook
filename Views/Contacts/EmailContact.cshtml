@@ -1,0 +1,77 @@
+﻿@model AddressBook.Models.ViewModels.EmailContactViewModel
+
+<h1>Contact</h1>
+<div class="d-flex justify-content-center">
+    <div class="glass-cf-style darkGlass p-2">
+        <div class="row g-0">
+            <div class="col-md-5 m-0 p-0 text-center">
+                <figure>
+                    @if (Model.Contact.ImageData != null)
+                    {
+                        <img src="data:image/*;base64,@(Convert.ToBase64String(Model.Contact?.ImageData!))" class="img-fluid img-thumbnail m-3" style="height: 15rem;">
+                    }
+                    else
+                    {
+                        <img src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png" class="img-fluid img-thumbnail m-3" style="height: 15rem;">
+                    }
+                    <figcaption>
+                        <span class="card-title fs-5">@Model.Contact.FullName)</span>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="col-md-7 text-center text-md-start">
+                <div class="card-body darkGlass">
+                    <div class="card-text fs-5 fw-bold">
+                        Address
+                    </div>
+                    <div class="card-text fs-5">
+                        @Html.DisplayFor(modelItem => Model.Contact.Address1)
+                    </div>
+                    <div class="card-text fs-5 mb-2">
+                        @Html.DisplayFor(modelItem => Model.Contact.City),
+                        @Html.DisplayFor(modelItem => Model.Contact.State)
+                        @Html.DisplayFor(modelItem => Model.Contact.ZipCode)
+                    </div>
+                    <div class="card-text fs-5">
+                        <span class="fw-bold me-2">Email:</span>@Html.DisplayFor(modelItem => Model.Contact.Email)
+                    </div>
+                    <div class="card-text fs-5 mb-3">
+                        <span class="fw-bold me-2">Phone:</span>@Html.DisplayFor(modelItem => Model.Contact.PhoneNumber)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form method="post">
+            <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+                <div class="col col-md-6">
+                    <label asp-for="@Model.Contact.FirstName" class="form-label"></label>
+                    <input type="text" readonly class="form-control" asp-for="@Model.EmailData.FirstName" />
+                </div>
+                <div class="col col-md-6">
+                    <label asp-for="@Model.Contact.LastName" class="form-label"></label>
+                    <input type="text" readonly class="form-control" asp-for="@Model.EmailData.LastName" />
+                </div>
+                <div class="col col-md-12">
+                    <label asp-for="@Model.EmailData.EmailAddress" class="form-label"></label>
+                    <input type="email" readonly class="form-control" asp-for="@Model.EmailData.EmailAddress" />
+                </div>
+            </div>
+            <div class="row row-cols-1 g-3">
+                <div class="col">
+                    <label asp-for="@Model.EmailData.Subject" class="form-label"></label>
+                    <input type="text" class="form-control" asp-for="@Model.EmailData.Subject" />
+                </div>
+                <div class="col">
+                    <label asp-for="@Model.EmailData.Body" class="form-label"></label>
+                    <textarea class="form-control" rows=10 asp-for="@Model.EmailData.Body"></textarea>
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary w-100" type="submit">Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

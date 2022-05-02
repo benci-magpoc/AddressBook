@@ -6,6 +6,7 @@ using AddressBook.Data;
 using AddressBook.Data.Migrations;
 using AddressBook.Enums;
 using AddressBook.Models;
+using AddressBook.Models.ViewModels;
 using AddressBook.Services;
 using AddressBook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -19,18 +20,22 @@ namespace AddressBook.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IAddressBookService _addressBookService;
         private readonly IImageService _imageService;
-        private readonly SearchService _searchService;
+        private readonly ISearchService _searchService;
+        private readonly IABEmailSender _emailSender;
         public ContactsController(ApplicationDbContext context, 
                                     UserManager<AppUser> userManager,
                                     IAddressBookService addressBookService,
                                     IImageService imageService,
-                                    SearchService searchService)
+                                    ISearchService searchService,
+                                    IABEmailSender emailSender
+                                    )
         {
             _context = context;
             _userManager = userManager;
             _addressBookService = addressBookService;
             _imageService = imageService;
             _searchService = searchService;
+            _emailSender = emailSender;
         }
 
         // GET: Contacts
@@ -267,6 +272,50 @@ namespace AddressBook.Controllers
         private bool ContactExists(int id)
         {
             return _context.Contacts.Any(e => e.Id == id);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> EmailContact(int id)
+        {
+            Contact contact = await _context.Contacts
+                                        .Include(c => c.Categories)
+                                        .FirstOrDefaultAsync(c=>c.Id == id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            EmailData emailData = new EmailData()
+            {
+                EmailAddress = contact.Email,
+                FirstName = contact.FirstName,
+                LastName = contact.LastName,
+            };
+
+            EmailContactViewModel model = new EmailContactViewModel()
+            {
+                Contact = contact,
+                EmailData = emailData
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EmailContact(EmailData emailData)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser appUser = await _userManager.GetUserAsync(User);
+                string emailBody = _emailSender.ComposeEmailBody(appUser, emailData);
+
+                await _emailSender.SendEmailAsync(emailData.EmailAddress, emailData.Subject, emailBody);
+
+                return RedirectToAction("Index", "Contacts");
+            }
+
+            return View();
         }
     }
 }
