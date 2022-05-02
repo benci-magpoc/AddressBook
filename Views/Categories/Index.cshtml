@@ -24,12 +24,12 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Name)
+                        <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" title="Edit Category"><i class="bi bi-pencil text-white"></i></a> |
+                        <a asp-action="EmailCategory" asp-route-id="@item.Id" title="Send Group Email"><i class="bi bi-envelope text-white"></i></a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id" title="Delete Category"><i class="bi bi-trash text-danger"></i></a>
                     </td>
                 </tr>
             }

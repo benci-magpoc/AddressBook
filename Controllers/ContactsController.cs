@@ -40,8 +40,10 @@ namespace AddressBook.Controllers
 
         // GET: Contacts
         [Authorize]
-        public async Task<IActionResult> Index(int id)
+        public async Task<IActionResult> Index(int id, string swalMessage = null)
         {
+            ViewData["SwalMessage"] = swalMessage;
+
             List<Contact> contacts = new List<Contact>();
             string appUserId = _userManager.GetUserId(User);
 
@@ -49,6 +51,7 @@ namespace AddressBook.Controllers
                 .Include(c => c.Contacts)
                 .ThenInclude(c => c.Categories)
                 .FirstOrDefault(u => u.Id == appUserId);
+
             if (id == 0)
             {
                 contacts = appUser.Contacts.ToList();
@@ -310,9 +313,16 @@ namespace AddressBook.Controllers
                 AppUser appUser = await _userManager.GetUserAsync(User);
                 string emailBody = _emailSender.ComposeEmailBody(appUser, emailData);
 
-                await _emailSender.SendEmailAsync(emailData.EmailAddress, emailData.Subject, emailBody);
+                try
+                {
+                    await _emailSender.SendEmailAsync(emailData.EmailAddress, emailData.Subject, emailBody);
+                    return RedirectToAction("Index", "Contacts", new { swalMessage = "Email Sent" });
+                }
+                catch (Exception)
+                {
+                    return RedirectToAction("Index", "Contacts", new { swalMessage = "Error: Failed to Send Email!!!" });
 
-                return RedirectToAction("Index", "Contacts");
+                }
             }
 
             return View();

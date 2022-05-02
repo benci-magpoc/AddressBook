@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AddressBook.Data;
 using AddressBook.Models;
+using AddressBook.Models.ViewModels;
+using AddressBook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,16 +15,20 @@ namespace AddressBook.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IABEmailSender _emailSender;
 
-        public CategoriesController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public CategoriesController(ApplicationDbContext context, 
+                                UserManager<AppUser> userManager, 
+                                IABEmailSender emailSender)
         {
             _context = context;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         // GET: Categories
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
             string userId = _userManager.GetUserId(User);
             List<Category> categories = await _context.Categories
@@ -41,8 +47,10 @@ namespace AddressBook.Controllers
             }
 
             Category category = await _context.Categories
-                .Include(c => c.AppUser)
+                .Include(c => c.Contacts)
+                .ThenInclude(c => c.AppUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (category == null)
             {
                 return NotFound();
@@ -167,6 +175,44 @@ namespace AddressBook.Controllers
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.Id == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EmailCategory(int id)
+        {
+            Category category = await _context.Categories.Include(c => c.Contacts).FirstOrDefaultAsync(c => c.Id == id);
+            List<string> emails = category.Contacts.Select(c => c.Email).ToList();
+
+            EmailData emailData = new EmailData()
+            {
+                GroupName = category.Name,
+                EmailAddress = string.Join(";", emails),
+                Subject = $"Group Message: {category.Name}"
+            };
+
+            EmailCategoryViewModel model = new EmailCategoryViewModel()
+            {
+                Contacts = category.Contacts.ToList(),
+                EmailData = emailData
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EmailCategory(EmailData emailData)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser appUser = await _userManager.GetUserAsync(User);
+                string emailBody = _emailSender.ComposeEmailBody(appUser, emailData);
+
+                await _emailSender.SendEmailAsync(emailData.EmailAddress, emailData.Subject, emailBody);
+
+                return RedirectToAction("Index", "Categories");
+            }
+            return View();
         }
     }
 }
