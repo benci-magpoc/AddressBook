@@ -11,5 +11,7 @@ namespace AddressBook.Services.Interfaces
         Task<ICollection<int>> GetContactCategoryIdsAsync(int contactId);
         Task<ICollection<Category>> GetContactCategoriesAsync(int contactId);
         Task RemoveContactFromCategoryAsync(int categoryId, int contactId);
+        Task AddToDefaultContactCategory(int contactId);
+
     }
 }

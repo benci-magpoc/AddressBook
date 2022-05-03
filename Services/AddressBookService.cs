@@ -32,7 +32,45 @@ namespace AddressBook.Services
             {
                 throw;
             }
+        }
 
+        public async Task AddToDefaultContactCategory(int contactId)
+        {
+            try
+            {
+                Contact? contact = await _context.Contacts.FindAsync(contactId);
+                Category? category = new Category();
+
+                
+                if (contact != null)
+                {
+                    if (!await _context.Categories
+                            .Where(c => c.Name == "All")
+                            .AnyAsync())
+                    {
+                        category = new Category
+                        {
+                            Name = "All",
+                            AppUserId = contact.AppUserId
+                        };
+                        _context.Add(category);
+                        category.Contacts.Add(contact);
+                    }
+                    else if(await _context.Categories
+                                .Where(c => c.Name == "All")
+                                .AnyAsync())
+                    {
+                        category = await _context.Categories.Where(c => c.Name == "All").FirstAsync();
+                        category.Contacts.Add(contact);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<ICollection<Category>> GetContactCategoriesAsync(int contactId)

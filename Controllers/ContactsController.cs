@@ -142,12 +142,13 @@ namespace AddressBook.Controllers
                     await _addressBookService.AddContactToCategoryAsync(categoryId, contact.Id);
                 }
 
+                await _addressBookService.AddToDefaultContactCategory(contact.Id);
                 return RedirectToAction(nameof(Index));
             }
 
             string appUserId = _userManager.GetUserId(User);
             ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
-            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name");
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name", new[] { "All" });
 
             return View(contact);
         }
