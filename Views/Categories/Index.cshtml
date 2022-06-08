@@ -1,0 +1,37 @@
+﻿@model IEnumerable<AddressBook.Models.Category>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+    <table class="table glass-cf-style darkGlass p-2">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" title="Edit Category"><i class="bi bi-pencil text-white"></i></a> |
+                        <a asp-action="EmailCategory" asp-route-id="@item.Id" title="Send Group Email"><i class="bi bi-envelope text-white"></i></a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id" title="Delete Category"><i class="bi bi-trash text-danger"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>

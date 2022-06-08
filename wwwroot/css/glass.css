@@ -1,0 +1,87 @@
+﻿:root {
+    --dark-gs-color: #212121;
+    --light-gs-color: white;
+    --highlight-gs-color: yellow;
+}
+
+a {
+    color: var(--light-gs-color);
+    text-decoration: none;
+}
+
+a:visited, a:hover, a:active, a:focus {
+    color: var(--highlight-gs-color);
+    filter: brightness(1.2) !important;
+}
+
+body {
+    color: var(--light-gs-color);
+}
+
+.pageBG {
+    background: url("/img/IronManWorkshop.png");
+    background-size: cover;
+}
+
+.glass-cf-style {
+    color: var(--light-gs-color);
+    backdrop-filter: blur(15px);
+    background-color: rgba(153,223,255,0.144,0.17);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.3) 2px 8px 8px;
+    border: 2px rgba(255, 255, 255, 0.4) solid;
+    border-bottom: 2px rgba(40, 40, 40, 0.35) solid;
+    border-right: 2px rgba(40, 40, 40, 0.35) solid;
+}
+
+.glass-cf-style.darkGlass {
+    color: var(--light-gs-color);
+}
+
+.glass-cf-style.lightGlass {
+    color: var(--dark-gs-color);
+}
+
+.glass-button {
+    display: inline-block;
+    border: 0;
+    padding: 5px;
+    text-decoration: none;
+    border-radius: 7px;
+    background-color: rgba(250, 250, 250, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    font-size: 1.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.glass-select {
+    font-size: 1.2em;
+}
+
+.glass-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: var(--highlight-gs-color);
+    border: 1px solid var(--highlight-gs-color);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px var(--formfocusShadow);
+    outline: 0 none;
+}
+
+.form-check-input:disabled ~ .form-check-label,
+.form-check-input[disabled] ~ .form-check-label {
+    opacity: 1;
+}
+
+div.form-floating label {
+    color: black;
+}
+
+.form-control:focus {
+    /* background-color: unset;*/
+    border-color: var(--highlight-gs-color);
+}
+
+select option {
+    color: black;
+}
