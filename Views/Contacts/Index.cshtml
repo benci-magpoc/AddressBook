@@ -27,7 +27,9 @@
                 <div class="row g-0">
                     <div class="col-md-5 m-0 p-0 text-center">
                         <figure>
-                            <img src='@ImageService.ConvertByteArrayToFile(contact.ImageData, contact.ImageType)' class="img-fluid img-thumbnail m-3" style="height: 10rem;">
+                            <a class="me-3" asp-action="Details" asp-route-id="@contact.Id" title="View Contact Details">
+                            <img src='@ImageService.ConvertByteArrayToFile(contact.ImageData!, contact.ImageType!)' class="img-fluid img-thumbnail m-3" style="height: 10rem;">
+                            </a>
                             <figcaption>
                                 <a class="me-3" asp-action="Details" asp-route-id="@contact.Id" title="View Contact Details">
                                     <span class="card-title fs-5">@Html.DisplayFor(modelItem => contact.FirstName) @Html.DisplayFor(modelItem => contact.LastName)</span>

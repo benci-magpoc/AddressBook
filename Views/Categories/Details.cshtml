@@ -1,33 +1,76 @@
-﻿@model AddressBook.Models.Category
+﻿@using AddressBook.Services.Interfaces
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model AddressBook.Models.Category
+@inject IImageService ImageService
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = " Category Details";
 }
 
-<h1>Details</h1>
+<h1 class="my-4">@ViewBag.Title</h1>
 <div class="glass-cf-style darkGlass p-2">
-
     <div>
-        <h4>Category</h4>
+        <h4>Category: <span>@Html.DisplayFor(model => model.Name)</span></h4>
         <hr />
-        <dl class="row">
+        <div class="container">
+            <div class="row my-4 my-lg-5 text-center">
+                <h5>Contacts In @Html.DisplayFor(model => model.Name) Category</h5>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                @foreach (var contact in Model!.Contacts)
+                {
+                    <div class="col">
+                        <div class="glass-cf-style darkGlass">
+                            <div class="row g-0">
+                                <div class="col-md-5 m-0 p-0 text-center">
+                                    <figure>
+                                        <a class="me-3" asp-action="Details" asp-route-id="@contact.Id" title="View Contact Details">
+                                            <img src='@ImageService.ConvertByteArrayToFile(contact.ImageData!, contact.ImageType!)' class="img-fluid img-thumbnail m-3" style="height: 10rem;">
+                                        </a>
+                                        <figcaption>
+                                            <a class="me-3" asp-action="Details" asp-route-id="@contact.Id" title="View Contact Details">
+                                                <span class="card-title fs-5">@Html.DisplayFor(modelItem => contact.FirstName) @Html.DisplayFor(modelItem => contact.LastName)</span>
+                                            </a>
+                                        </figcaption>
+                                    </figure>
+                                </div>
+                                <div class="col-md-7 text-center text-md-start">
+                                    <div class="card-body darkGlass">
+                                        <div class="card-text fs-5 fw-bold">
+                                            Address
+                                        </div>
+                                        <div class="card-text fs-5">
+                                            @Html.DisplayFor(modelItem => contact.Address1)
+                                        </div>
+                                        <div class="card-text fs-5 mb-2">
+                                            @Html.DisplayFor(modelItem => contact.City),
+                                            @Html.DisplayFor(modelItem => contact.State)
+                                            @Html.DisplayFor(modelItem => contact.ZipCode)
+                                        </div>
 
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Name)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Name)
-            </dd>
-
-        </dl>
-        <h5>Contacts Under @Html.DisplayFor(model => model.Name) Category</h5>
-
-        @foreach (var contact in @Model.Contacts)
-        {
-            <br/><a asp-controller="Contacts" asp-action="Details" asp-route-id="@contact.Id">@contact.FullName</a>
-        }
+                                        <div class="card-text fs-5">
+                                            <span class="fw-bold me-2">Email:</span>@Html.DisplayFor(modelItem => contact.Email)
+                                        </div>
+                                        <div class="card-text fs-5 mb-3">
+                                            <span class="fw-bold me-2">Phone:</span>@Html.DisplayFor(modelItem => contact.PhoneNumber)
+                                        </div>
+                                        <div class="fs-4">
+                                            <a class="me-3" asp-controller="Contacts" asp-action="Edit" asp-route-id="@contact.Id" title="Edit Contact"><i class="bi bi-pencil text-white"></i></a>
+                                            <a class="me-3" asp-controller="Contacts" asp-action="Details" asp-route-id="@contact.Id" title="View Contact Details"><i class="bi bi-book text-white"></i></a>
+                                            <a class="me-3" asp-controller="Contacts" asp-action="EmailContact" asp-route-id="@contact.Id" title="Send Contact an Email"><i class="bi bi-envelope text-white"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@contact.Id" title="Delete Contact"><i class="bi bi-trash text-danger"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
     <div>
+        <br />
         <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
         <a asp-action="Index">Back to List</a>
     </div>
